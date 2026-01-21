@@ -1,0 +1,7 @@
+{
+  "name": "MRAB SSC 2026 Preparation",
+  "description": "An all-in-one educational platform for Bangladesh SSC 2026 students featuring AI-powered MCQ practice, creative question evaluation, and detailed performance analytics.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
