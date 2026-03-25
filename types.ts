@@ -1,32 +1,37 @@
 
 export enum Subject {
-  // Science
+  // General Subjects
+  MATH = 'সাধারণ গণিত',
+  BANGLA_1ST = 'বাংলা ১ম পত্র',
+  BANGLA_2ND = 'বাংলা ২য় পত্র',
+  ENGLISH_1ST = 'English 1st Paper',
+  ENGLISH_2ND = 'English 2nd Paper',
+  ICT = 'তথ্য ও যোগাযোগ প্রযুক্তি',
+  RELIGION = 'ইসলাম ও নৈতিক শিক্ষা',
+  
+  // Humanities / Arts Subjects
+  HISTORY = 'ইতিহাস ও বিশ্বসভ্যতা',
+  GEOGRAPHY = 'ভূগোল ও পরিবেশ',
+  CIVICS = 'পৌরনীতি ও নাগরিকতা',
+  AGRICULTURE = 'কৃষি শিক্ষা',
+  GENERAL_SCIENCE = 'সাধারণ বিজ্ঞান',
+
+  // Science Subjects (Placeholders for future content)
   PHYSICS = 'পদার্থবিজ্ঞান',
   CHEMISTRY = 'রসায়ন',
   BIOLOGY = 'জীববিজ্ঞান',
   HIGHER_MATH = 'উচ্চতর গণিত',
-  
-  // Humanities / Arts (Economics removed)
-  HISTORY = 'ইতিহাস ও বিশ্বসভ্যতা',
-  GEOGRAPHY = 'ভূগোল ও পরিবেশ',
-  CIVICS = 'পৌরনীতি ও নাগরিকতা',
 
-  // General / Compulsory
-  MATH = 'সাধারণ গণিত',
-  GENERAL_SCIENCE = 'সাধারণ বিজ্ঞান',
-  ICT = 'তথ্য ও যোগাযোগ প্রযুক্তি',
-  BGS = 'বাংলাদেশ ও বিশ্বপরিচয়',
-  RELIGION = 'ইসলাম ও নৈতিক শিক্ষা',
-  ENGLISH_1ST = 'English 1st Paper',
-  ENGLISH_2ND = 'English 2nd Paper',
-  BANGLA_1ST = 'বাংলা ১ম পত্র',
-  BANGLA_2ND = 'বাংলা ২য় পত্র'
+  // Commerce Subjects (Placeholders for future content)
+  ACCOUNTING = 'হিসাববিজ্ঞান',
+  FINANCE = 'ফিন্যান্স ও ব্যাংকিং',
+  BUSINESS_ENT = 'ব্যবসায় উদ্যোগ'
 }
 
-export enum Bibhag {
-  SCIENCE = 'বিজ্ঞান',
-  HUMANITIES = 'মানবিক',
-  COMMERCE = 'ব্যবসায় শিক্ষা'
+export enum Department {
+  SCIENCE = 'Science (বিজ্ঞান)',
+  HUMANITIES = 'Humanities (মানবিক)',
+  COMMERCE = 'Business Studies (ব্যবসায় শিক্ষা)'
 }
 
 export interface UserGoals {
@@ -36,9 +41,7 @@ export interface UserGoals {
 }
 
 export interface UserProfile {
-  name: string;
-  age: string;
-  bibhag: Bibhag;
+  department: Department | '';
   goals: UserGoals;
 }
 
@@ -52,7 +55,7 @@ export interface SyllabusItem {
   topics: string[];
 }
 
-export type QuestionType = 'MCQ' | 'CQ' | 'FULL';
+export type QuestionType = 'MCQ' | 'CQ' | 'FULL' | 'ENGLISH';
 
 export interface MCQOption {
   id: string;
@@ -76,14 +79,31 @@ export interface CQQuestion {
   chapter: string;
   stem: string;
   parts: {
-    a: { question: string; marks: number; label: string };
-    b: { question: string; marks: number; label: string };
-    c: { question: string; marks: number; label: string };
-    d: { question: string; marks: number; label: string };
+    a: { question: string; marks: number; label: string; solution?: string };
+    b: { question: string; marks: number; label: string; solution?: string };
+    c: { question: string; marks: number; label: string; solution?: string };
+    d: { question: string; marks: number; label: string; solution?: string };
   };
 }
 
-export type Question = MCQQuestion | CQQuestion;
+export interface EnglishItem {
+  id: string;
+  instruction: string;
+  content: string;
+  marks: number;
+  type: string;
+  solution?: string;
+}
+
+export interface EnglishQuestion {
+  id: string;
+  type: 'ENGLISH';
+  chapter: string;
+  passage?: string;
+  items: EnglishItem[];
+}
+
+export type Question = MCQQuestion | CQQuestion | EnglishQuestion;
 
 export interface ExamSession {
   id: string;
@@ -113,4 +133,19 @@ export interface SessionHistory {
   accuracy: number;
   durationMinutes: number;
   mode: 'Practice' | 'Exam' | 'BOARD';
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  image?: string;
+  timestamp: number;
+}
+
+export interface TutorSession {
+  id: string;
+  subject: Subject;
+  messages: ChatMessage[];
+  lastActive: number;
 }

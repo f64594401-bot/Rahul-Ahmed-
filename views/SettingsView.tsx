@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
-import { UserProfile, Bibhag } from '../types';
-import { User, Save, CheckCircle2, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { UserProfile, Department } from '../types';
+import { Save, CheckCircle2, ShieldCheck, GraduationCap, Briefcase, Atom } from 'lucide-react';
 
 interface SettingsViewProps {
   profile: UserProfile;
@@ -12,92 +12,75 @@ const SettingsView: React.FC<SettingsViewProps> = ({ profile, onSave }) => {
   const [formData, setFormData] = useState<UserProfile>(profile);
   const [isSaved, setIsSaved] = useState(false);
 
+  useEffect(() => {
+    setFormData(profile);
+  }, [profile]);
+
   const handleSave = () => {
+    if (!formData.department) return;
     onSave(formData);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
 
+  const departments = [
+    { id: Department.SCIENCE, icon: Atom, color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
+    { id: Department.HUMANITIES, icon: GraduationCap, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+    { id: Department.COMMERCE, icon: Briefcase, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+  ];
+
   return (
-    <div className="max-w-2xl mx-auto py-8">
+    <div className="max-w-2xl mx-auto py-8 px-4">
       <div className="mb-10">
-        <h2 className="text-3xl font-bold text-white mb-2">সেটিংস ও প্রোফাইল</h2>
-        <p className="text-slate-400">আপনার ব্যক্তিগত তথ্য এবং পড়ার বিভাগ পরিচালনা করুন।</p>
+        <h2 className="text-3xl font-black text-white mb-2 tracking-tight">অ্যাপ সেটিংস</h2>
+        <p className="text-text-secondary">আপনার শিক্ষা বিভাগ নির্বাচন করুন যাতে বোর্ড স্ট্যান্ডার্ড প্রশ্নপত্র কাস্টমাইজ করা যায়।</p>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-2xl">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
-            <User size={32} />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">শিক্ষার্থীর প্রোফাইল</h3>
-            <p className="text-sm text-slate-500">তথ্যগুলো সঠিকভাবে পূরণ করুন।</p>
-          </div>
-        </div>
+      <div className="bg-surface border border-white/5 rounded-[2.5rem] p-8 space-y-10 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/5 blur-[100px] -mr-32 -mt-32 rounded-full"></div>
 
-        <div className="grid grid-cols-1 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-400 ml-1">পূর্ণ নাম</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-              placeholder="আপনার নাম লিখুন"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-400 ml-1">বয়স</label>
-              <input
-                type="number"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                placeholder="বয়স"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-400 ml-1">বিভাগ (Bibhag)</label>
-              <select
-                value={formData.bibhag}
-                onChange={(e) => setFormData({ ...formData, bibhag: e.target.value as Bibhag })}
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
-              >
-                {Object.values(Bibhag).map((b) => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-              </select>
+        <div className="space-y-8 relative z-10">
+          <div className="space-y-4">
+            <label className="text-xs font-bold text-text-secondary uppercase tracking-widest ml-1 block">আপনার শিক্ষা বিভাগ নির্বাচন করুন</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {departments.map((dept) => (
+                <button
+                  key={dept.id}
+                  onClick={() => setFormData({ ...formData, department: dept.id })}
+                  className={`flex flex-col items-center justify-center p-6 rounded-3xl border transition-all text-center gap-3 ${
+                    formData.department === dept.id
+                    ? `bg-brand-primary/10 border-brand-primary/20 ring-2 ring-brand-primary/20`
+                    : 'bg-black/40 border-white/5 hover:border-white/10 opacity-60 grayscale hover:grayscale-0 hover:opacity-100'
+                  }`}
+                >
+                  <dept.icon className={`w-8 h-8 ${formData.department === dept.id ? 'text-brand-primary' : 'text-text-secondary'}`} />
+                  <span className={`text-[11px] font-bold uppercase tracking-tight ${formData.department === dept.id ? 'text-white' : 'text-text-secondary'}`}>
+                    {dept.id.split('(')[0]}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-slate-800 flex justify-between items-center">
-          <div className="flex items-center gap-2 text-slate-500">
-            <ShieldCheck size={16} />
-            <span className="text-xs">আপনার তথ্য সুরক্ষিত রাখা হয়।</span>
+        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 relative z-10">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <ShieldCheck size={16} className="text-emerald-500" />
+            <span className="text-[10px] uppercase tracking-wider font-bold">বিভাগ অনুযায়ী প্রশ্নপত্র লোড হবে</span>
           </div>
           <button
             onClick={handleSave}
-            className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-bold transition-all ${
+            disabled={!formData.department}
+            className={`btn-primary w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
               isSaved 
-              ? 'bg-emerald-600 text-white' 
-              : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/20'
+              ? 'bg-emerald-600 text-white scale-105 shadow-lg shadow-emerald-900/40' 
+              : 'text-white shadow-xl shadow-brand-primary/20 active:scale-95'
             }`}
           >
-            {isSaved ? <CheckCircle2 size={18} /> : <Save size={18} />}
-            {isSaved ? 'সংরক্ষিত হয়েছে' : 'তথ্য সেভ করুন'}
+            {isSaved ? <CheckCircle2 size={20} className="animate-in zoom-in" /> : <Save size={20} />}
+            {isSaved ? 'সংরক্ষিত হয়েছে' : 'সেভ করুন'}
           </button>
         </div>
-      </div>
-
-      <div className="mt-8 p-6 bg-indigo-600/5 border border-indigo-500/10 rounded-3xl">
-        <h4 className="text-sm font-bold text-indigo-400 mb-2 uppercase tracking-widest">টিপস</h4>
-        <p className="text-sm text-slate-400 leading-relaxed">
-          সঠিক বিভাগ সিলেক্ট করলে আমরা আপনাকে সেই অনুযায়ী চ্যাপ্টার এবং প্রশ্ন সাজেস্ট করতে পারব।
-        </p>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { Question, MCQQuestion, CQQuestion } from '../types';
+import { Question, MCQQuestion, CQQuestion, EnglishQuestion } from '../types';
 import { Camera, Image as ImageIcon, X, Paperclip, AlertTriangle } from 'lucide-react';
 
 interface QuestionRendererProps {
@@ -37,23 +37,25 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   if (question.type === 'MCQ') {
     const mcq = question as MCQQuestion;
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
+      <div className="bg-surface border border-white/5 rounded-2xl p-6 mb-6">
         <div className="flex items-start gap-4 mb-6">
-          <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+          <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-primary/20 text-brand-primary flex items-center justify-center font-bold text-sm">
             {index + 1}
           </span>
-          <h3 className="text-lg font-medium text-slate-200 leading-relaxed">
-            {mcq.question}
-          </h3>
+          <div className="flex-1">
+            <h3 className="text-lg font-medium text-text-primary leading-relaxed whitespace-pre-wrap">
+              {mcq.question}
+            </h3>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {(mcq.options || []).map((option) => {
             const isSelected = answer === option.id;
             const isCorrect = option.id === mcq.correctOptionId;
-            let borderStyle = 'border-slate-800 hover:border-slate-700 hover:bg-slate-800/50';
+            let borderStyle = 'border-white/5 hover:border-white/10 hover:bg-white/5';
             
-            if (isSelected) borderStyle = 'border-indigo-500 bg-indigo-500/10 text-indigo-200';
+            if (isSelected) borderStyle = 'border-brand-primary bg-brand-primary/10 text-brand-primary';
             if (showFeedback) {
               if (isCorrect) borderStyle = 'border-emerald-500 bg-emerald-500/10 text-emerald-200';
               else if (isSelected) borderStyle = 'border-red-500 bg-red-500/10 text-red-200';
@@ -67,7 +69,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${borderStyle}`}
               >
                 <div className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                  isSelected ? 'border-indigo-500 bg-indigo-500' : 'border-slate-700'
+                  isSelected ? 'border-brand-primary bg-brand-primary' : 'border-white/20'
                 }`}>
                   {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-white"></div>}
                 </div>
@@ -78,24 +80,76 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         </div>
 
         {showFeedback && (
-          <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-            <h4 className="text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider">ব্যাখ্যা (Explanation)</h4>
-            <p className="text-sm text-slate-300 leading-relaxed">{mcq.explanation}</p>
+          <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/5">
+            <h4 className="text-xs font-bold uppercase text-text-secondary mb-2 tracking-wider">ব্যাখ্যা (Board Explanation)</h4>
+            <p className="text-sm text-text-primary leading-relaxed">{mcq.explanation}</p>
           </div>
         )}
       </div>
     );
   }
 
+  if (question.type === 'ENGLISH') {
+    const eng = question as EnglishQuestion;
+    const engAnswers = answer || {};
+
+    return (
+      <div className="bg-surface border border-white/5 rounded-2xl p-6 mb-6">
+        {eng.passage && (
+          <div className="bg-black/40 p-6 rounded-xl border border-white/5 mb-8">
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="text-xs font-bold text-brand-primary uppercase tracking-widest">অনুচ্ছেদ (Passage)</h4>
+              <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-bold uppercase border border-brand-primary/20">Board Standard Reading</span>
+            </div>
+            <p className="text-text-primary leading-relaxed whitespace-pre-wrap font-medium bg-white/5 p-4 rounded-xl border border-white/5">{eng.passage}</p>
+          </div>
+        )}
+
+        <div className="space-y-12">
+          {eng.items.map((item, idx) => (
+            <div key={item.id} className="space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="w-8 h-8 rounded-lg bg-brand-primary/20 text-brand-primary flex items-center justify-center font-black text-sm border border-brand-primary/20">
+                      {idx + 1}
+                    </span>
+                    <h4 className="text-text-primary font-bold leading-tight">{item.instruction}</h4>
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl border border-white/5 mb-4 font-medium text-text-primary whitespace-pre-wrap">
+                    {item.content}
+                  </div>
+                </div>
+                <div className="shrink-0 ml-4">
+                  <span className="text-[10px] font-bold text-text-secondary bg-white/5 px-3 py-1 rounded-lg border border-white/10">
+                    {item.marks} Marks
+                  </span>
+                </div>
+              </div>
+
+              <div className="pl-11">
+                <textarea
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-text-primary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all min-h-[100px] text-sm md:text-base"
+                  placeholder="আপনার উত্তর এখানে লিখুন..."
+                  value={engAnswers[item.id]?.text || ''}
+                  onChange={(e) => onAnswerChange({ ...engAnswers, [item.id]: { text: e.target.value } })}
+                  disabled={showFeedback}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const cq = question as CQQuestion;
 
-  // STRICT DEFENSIVE CHECK FOR CQ PARTS
   if (!cq.parts || typeof cq.parts !== 'object' || !cq.parts.a) {
     return (
       <div className="bg-red-950/20 border border-red-900 p-6 rounded-3xl text-center">
         <AlertTriangle className="mx-auto text-red-500 mb-2" size={32} />
         <h3 className="text-red-200 font-bold">সৃজনশীল প্রশ্ন লোড করতে সমস্যা হয়েছে</h3>
-        <p className="text-red-400/60 text-sm mt-1">AI প্রশ্নটি সম্পূর্ণভাবে তৈরি করতে পারেনি। পুনরায় চেষ্টা করুন।</p>
       </div>
     );
   }
@@ -130,13 +184,13 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">
-      <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 mb-8">
+    <div className="bg-surface border border-white/5 rounded-2xl p-6 mb-6">
+      <div className="bg-black/40 p-6 rounded-xl border border-white/5 mb-8">
         <div className="flex justify-between items-center mb-3">
-          <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">উদ্দীপক (Stem)</h4>
-          <span className="px-3 py-1 bg-indigo-600/10 text-indigo-400 rounded-full text-[10px] font-bold uppercase border border-indigo-500/20">সৃজনশীল প্রশ্ন</span>
+          <h4 className="text-xs font-bold text-brand-primary uppercase tracking-widest">উদ্দীপক (Stem)</h4>
+          <span className="px-3 py-1 bg-amber-600/10 text-amber-500 rounded-full text-[10px] font-bold uppercase border border-amber-500/20">বোর্ড স্ট্যান্ডার্ড সৃজনশীল</span>
         </div>
-        <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">{cq.stem}</p>
+        <p className="text-text-primary leading-relaxed whitespace-pre-wrap font-medium bg-white/5 p-4 rounded-xl border border-white/5">{cq.stem}</p>
       </div>
 
       <div className="space-y-10">
@@ -147,14 +201,14 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           return (
             <div key={part} className="space-y-4">
               <div className="flex justify-between items-start">
-                <label className="text-slate-200 font-bold flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-lg bg-slate-800 text-indigo-400 flex items-center justify-center font-black uppercase text-sm border border-slate-700">
+                <label className="text-text-primary font-bold flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-lg bg-white/5 text-brand-primary flex items-center justify-center font-black uppercase text-sm border border-white/10">
                     {part}
                   </span>
                   <span className="leading-tight">{partData.question}</span>
                 </label>
                 <div className="text-right">
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+                  <span className="text-[10px] font-bold text-text-secondary bg-white/5 px-3 py-1 rounded-lg border border-white/10">
                     {partData.marks} নম্বর • {partData.label}
                   </span>
                 </div>
@@ -162,8 +216,8 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
               <div className="space-y-3 pl-11">
                 <textarea
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all min-h-[120px] text-sm md:text-base"
-                  placeholder={`আপনার উত্তর এখানে লিখুন অথবা ছবি আপলোড করুন...`}
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-text-primary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all min-h-[120px] text-sm md:text-base"
+                  placeholder={`আপনার উত্তর এখানে লিখুন (বোর্ড পরীক্ষায় এই অংশের জন্য ${partData.marks} মার্কস বরাদ্দ থাকে)...`}
                   value={cqAnswers[part]?.text || ''}
                   onChange={(e) => updatePartText(part, e.target.value)}
                   disabled={showFeedback}
@@ -183,10 +237,10 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   <button
                     onClick={() => fileInputRefs[part].current?.click()}
                     disabled={showFeedback}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all border border-slate-700"
+                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-text-secondary rounded-xl text-xs font-bold transition-all border border-white/10"
                   >
                     <Camera size={14} />
-                    হাতে লেখা উত্তর আপলোড করুন
+                    ছবি আপলোড (হাতে লেখা উত্তর)
                   </button>
 
                   {cqAnswers[part]?.image && (
@@ -194,7 +248,7 @@ const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <img 
                         src={cqAnswers[part].image} 
                         alt="Uploaded" 
-                        className="w-16 h-16 object-cover rounded-xl border-2 border-indigo-500 cursor-pointer hover:opacity-80 transition-opacity"
+                        className="w-16 h-16 object-cover rounded-xl border-2 border-brand-primary cursor-pointer"
                         onClick={() => window.open(cqAnswers[part].image)}
                       />
                       {!showFeedback && (

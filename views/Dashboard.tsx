@@ -6,10 +6,13 @@ import {
   Target, 
   Trophy,
   ArrowRight,
-  ClipboardList,
   Edit2,
   X,
-  ShieldAlert
+  ShieldAlert,
+  Sparkles,
+  BookOpen,
+  ClipboardList,
+  BarChart3
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { UserProfile, SessionHistory, UserGoals } from '../types';
@@ -26,7 +29,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onStartPractice, onGoToExams, pro
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalDraft, setGoalDraft] = useState<UserGoals>(profile.goals);
 
-  // Calculate Real Stats
   const totalAccuracy = history.length > 0 
     ? Math.round(history.reduce((acc, curr) => acc + curr.accuracy, 0) / history.length) 
     : 0;
@@ -34,7 +36,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onStartPractice, onGoToExams, pro
   const topicsMastered = history.filter(h => h.accuracy >= 80).length;
   const totalStudyHours = Math.round(history.reduce((acc, curr) => acc + curr.durationMinutes, 0) / 60);
 
-  // Prepare Chart Data from History (Last 7 Sessions)
   const chartData = history.slice(-7).map(h => ({
     name: new Date(h.timestamp).toLocaleDateString(undefined, { weekday: 'short' }),
     score: h.accuracy
@@ -50,171 +51,222 @@ const Dashboard: React.FC<DashboardProps> = ({ onStartPractice, onGoToExams, pro
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-10">
-      {/* Header with Title */}
-      <div className="flex justify-between items-end">
+    <div className="max-w-6xl mx-auto space-y-12 pb-10">
+      {/* Welcome Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">সাফল্য চিত্র</h2>
-          <p className="text-slate-400 mt-1">আপনার নিয়মিত প্রস্তুতির খতিয়ান এখানে দেখুন।</p>
+          <h2 className="text-4xl font-black text-white tracking-tight">ড্যাশবোর্ড হাব</h2>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <span className="text-text-secondary">আপনার SSC ২০২৬ প্রস্তুতির কমপ্লিট কন্ট্রোল সেন্টার</span>
+            {profile.department && (
+              <span className="px-3 py-1 bg-white/5 border border-white/10 text-brand-primary rounded-full text-[10px] font-bold uppercase tracking-widest">
+                {profile.department}
+              </span>
+            )}
+          </div>
         </div>
         <button 
           onClick={() => setIsEditingGoal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-xl text-sm font-bold transition-all border border-slate-700"
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all border border-white/10 shadow-sm"
         >
           <Edit2 size={16} />
-          লক্ষ্য পরিবর্তন করুন
+          লক্ষ্য পরিবর্তন
         </button>
       </div>
 
-      {/* Hero Stats */}
+      {/* Main Statistics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl p-6 text-white shadow-xl shadow-indigo-900/20">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-white/20 rounded-xl"><Trophy size={20} /></div>
-            <span className="text-xs font-bold uppercase tracking-wider opacity-60">গড় নির্ভুলতা (Accuracy)</span>
+        <div className="bg-gradient-to-br from-brand-primary to-brand-secondary rounded-[2.5rem] p-8 text-white shadow-xl shadow-brand-primary/20 group">
+          <div className="flex justify-between items-start mb-6">
+            <div className="p-3 bg-white/20 rounded-2xl group-hover:scale-110 transition-transform"><Trophy size={24} /></div>
+            <span className="text-xs font-bold uppercase tracking-widest opacity-60">গড় নির্ভুলতা</span>
           </div>
-          <p className="text-4xl font-bold mb-1">{totalAccuracy}%</p>
-          <p className="text-indigo-100 text-sm">
-            লক্ষ্য: {profile.goals.targetAccuracy}%
-          </p>
+          <p className="text-5xl font-black mb-2">{totalAccuracy}%</p>
+          <p className="text-white/80 text-sm font-medium">লক্ষ্যমাত্রা: {profile.goals.targetAccuracy}%</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl"><Target size={20} /></div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">অর্জিত টপিক</span>
+        <div className="bg-surface border border-white/5 rounded-[2.5rem] p-8 group shadow-sm">
+          <div className="flex justify-between items-start mb-6">
+            <div className="p-3 bg-white/5 text-brand-primary rounded-2xl group-hover:scale-110 transition-transform"><Target size={24} /></div>
+            <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">মাস্টার্ড অধ্যায়</span>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{topicsMastered}/{profile.goals.topicsMastered}</p>
-          <p className="text-slate-400 text-sm">৮০% এর বেশি মার্ক পাওয়া অধ্যায়</p>
+          <p className="text-5xl font-black text-white mb-2">{topicsMastered}/{profile.goals.topicsMastered}</p>
+          <p className="text-text-secondary text-sm font-medium">৮০%+ নম্বর প্রাপ্ত অধ্যায়সমূহ</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-2 bg-purple-500/20 text-purple-400 rounded-xl"><HistoryIcon size={20} /></div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">মোট পড়ার সময়</span>
+        <div className="bg-surface border border-white/5 rounded-[2.5rem] p-8 group shadow-sm">
+          <div className="flex justify-between items-start mb-6">
+            <div className="p-3 bg-white/5 text-brand-primary rounded-2xl group-hover:scale-110 transition-transform"><HistoryIcon size={24} /></div>
+            <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">স্টাডি টাইম</span>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{totalStudyHours}h / {profile.goals.studyHours}h</p>
-          <p className="text-slate-400 text-sm">চলতি মাসের পড়ার লক্ষ্যমাত্রা</p>
+          <p className="text-5xl font-black text-white mb-2">{totalStudyHours}h / {profile.goals.studyHours}h</p>
+          <p className="text-text-secondary text-sm font-medium">চলতি মাসের পড়ার টার্গেট</p>
         </div>
       </div>
 
+      {/* System Modules Hub */}
+      <div className="space-y-6">
+        <h3 className="text-sm font-bold text-text-secondary uppercase tracking-[0.3em] px-2">সিস্টেম মডিউলস (All Systems)</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button 
+            onClick={onStartPractice}
+            className="flex flex-col p-6 bg-surface border border-white/5 rounded-[2rem] hover:border-brand-primary/50 hover:bg-white/5 transition-all text-left group shadow-sm"
+          >
+            <div className="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-transform">
+              <BookOpen size={24} />
+            </div>
+            <h4 className="font-bold text-lg text-white mb-1">প্র্যাকটিস হাব</h4>
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">অধ্যায়ভিত্তিক MCQ ও সৃজনশীল প্র্যাকটিস করুন।</p>
+            <div className="mt-auto flex items-center gap-2 text-brand-primary font-bold text-xs">
+              শুরু করুন <ArrowRight size={14} />
+            </div>
+          </button>
+
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'tutor' }))}
+            className="flex flex-col p-6 bg-surface border border-white/5 rounded-[2rem] hover:border-brand-primary/50 hover:bg-white/5 transition-all text-left group shadow-sm"
+          >
+            <div className="w-12 h-12 bg-brand-primary/20 rounded-2xl flex items-center justify-center text-brand-primary mb-4 shadow-lg shadow-brand-primary/10 group-hover:scale-110 transition-transform">
+              <Sparkles size={24} />
+            </div>
+            <h4 className="font-bold text-lg text-white mb-1">AI টিউটর</h4>
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">যেকোনো প্রশ্ন বা সমস্যা সমাধানে আপনার পার্সোনাল টিউটর।</p>
+            <div className="mt-auto flex items-center gap-2 text-brand-primary font-bold text-xs">
+              আলাপ করুন <ArrowRight size={14} />
+            </div>
+          </button>
+
+          <button 
+            onClick={onGoToExams}
+            className="flex flex-col p-6 bg-surface border border-white/5 rounded-[2rem] hover:border-brand-primary/50 hover:bg-white/5 transition-all text-left group shadow-sm"
+          >
+            <div className="w-12 h-12 bg-brand-primary/10 rounded-2xl flex items-center justify-center text-brand-primary mb-4 shadow-lg shadow-brand-primary/10 group-hover:scale-110 transition-transform">
+              <ShieldAlert size={24} />
+            </div>
+            <h4 className="font-bold text-lg text-white mb-1">মক টেস্ট</h4>
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">বোর্ড স্ট্যান্ডার্ড প্রশ্নপত্রে পূর্ণাঙ্গ মক টেস্ট দিন।</p>
+            <div className="mt-auto flex items-center gap-2 text-brand-primary font-bold text-xs">
+              পরীক্ষা দিন <ArrowRight size={14} />
+            </div>
+          </button>
+
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'analytics' }))}
+            className="flex flex-col p-6 bg-surface border border-white/5 rounded-[2rem] hover:border-brand-primary/50 hover:bg-white/5 transition-all text-left group shadow-sm"
+          >
+            <div className="w-12 h-12 bg-brand-primary/5 rounded-2xl flex items-center justify-center text-brand-primary mb-4 shadow-lg shadow-brand-primary/5 group-hover:scale-110 transition-transform">
+              <BarChart3 size={24} />
+            </div>
+            <h4 className="font-bold text-lg text-white mb-1">সাফল্য চিত্র</h4>
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">আপনার প্রস্তুতির গ্রাফ ও দুর্বলতা চিহ্নিত করুন।</p>
+            <div className="mt-auto flex items-center gap-2 text-brand-primary font-bold text-xs">
+              গ্রাফ দেখুন <ArrowRight size={14} />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Progress Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-3xl p-6 min-h-[400px]">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-white">পারফরম্যান্স গ্রাফ</h3>
-            <div className="text-xs text-slate-500 font-bold uppercase tracking-widest">শেষ ৭টি সেশন</div>
+        <div className="lg:col-span-2 bg-surface border border-white/5 rounded-[2.5rem] p-8 min-h-[450px] shadow-sm">
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h3 className="text-xl font-bold text-white">প্রগতি ট্র্যাকার</h3>
+              <p className="text-xs text-text-secondary mt-1 uppercase tracking-widest font-bold">শেষ ৭ দিনের পারফরম্যান্স</p>
+            </div>
           </div>
-          <div className="h-64 w-full">
+          <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={displayChartData}>
                 <defs>
                   <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#1E6BFF" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#1E6BFF" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} domain={[0, 100]} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} />
-                <Area type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.05)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#B0B0B0', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#B0B0B0', fontSize: 12}} domain={[0, 100]} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#161616', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px' }} 
+                  itemStyle={{ color: '#FFFFFF' }} 
+                  labelStyle={{ color: '#B0B0B0' }}
+                />
+                <Area type="monotone" dataKey="score" stroke="#1E6BFF" strokeWidth={4} fillOpacity={1} fill="url(#colorScore)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 h-full flex flex-col">
-            <h3 className="text-xl font-bold text-white mb-6">কুইক অ্যাকশনস</h3>
-            <div className="space-y-3 flex-1">
-              <button 
-                onClick={onStartPractice}
-                className="w-full flex items-center justify-between p-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <Play size={18} fill="currentColor" />
-                  <span className="font-semibold">প্র্যাকটিস শুরু করুন</span>
-                </div>
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-              
-              <button 
-                onClick={onGoToExams}
-                className="w-full flex items-center justify-between p-4 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <ShieldAlert size={18} />
-                  <span className="font-semibold">বোর্ড এক্সাম দিন</span>
-                </div>
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </button>
+          <div className="bg-surface border border-white/5 rounded-[2.5rem] p-8 h-full flex flex-col justify-center shadow-sm">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-white/5 text-brand-primary rounded-2xl"><Sparkles size={24} /></div>
+              <h3 className="text-xl font-bold text-white">আজকের টার্গেট</h3>
             </div>
-
-            <div className="mt-8 pt-8 border-t border-slate-800">
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">সবশেষ ফলাফল</p>
-              <div className="space-y-4">
-                {history.length > 0 ? history.slice(-3).reverse().map((h, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${h.accuracy >= 80 ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
-                      <p className="text-sm text-slate-300 truncate max-w-[120px]">{h.subject}</p>
-                    </div>
-                    <span className="text-xs font-bold text-slate-500">{h.accuracy}%</span>
-                  </div>
-                )) : (
-                  <p className="text-xs text-slate-600">কোন ফলাফল নেই</p>
-                )}
+            <div className="space-y-4">
+              <div className="p-4 bg-white/5 border border-white/5 rounded-2xl">
+                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">সুপারিশকৃত</p>
+                <p className="text-sm font-bold text-white">বাংলা ১ম পত্র: 'সুভা' এমসিকিউ (১০টি)</p>
+              </div>
+              <div className="p-4 bg-white/5 border border-white/5 rounded-2xl">
+                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">বোর্ডের জন্য গুরুত্বপূর্ণ</p>
+                <p className="text-sm font-bold text-white">গণিত: পরিসংখ্যান অধ্যায় রিভিশন</p>
               </div>
             </div>
+            <button 
+              onClick={onStartPractice}
+              className="btn-primary mt-8 w-full py-4 text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-3"
+            >
+              টার্গেট পূরণ শুরু করুন <ArrowRight size={18} />
+            </button>
           </div>
         </div>
       </div>
 
       {isEditingGoal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setIsEditingGoal(false)}></div>
-          <div className="relative bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white">লক্ষ্যমাত্রা নির্ধারণ করুন</h3>
-              <button onClick={() => setIsEditingGoal(false)} className="text-slate-500 hover:text-white transition-colors">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsEditingGoal(false)}></div>
+          <div className="relative bg-surface border border-white/10 w-full max-w-md rounded-[3rem] p-10 shadow-2xl animate-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-black text-white tracking-tight">লক্ষ্যমাত্রা নির্ধারণ</h3>
+              <button onClick={() => setIsEditingGoal(false)} className="text-text-secondary hover:text-white transition-colors">
                 <X size={24} />
               </button>
             </div>
-
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <label className="text-sm text-slate-400 block mb-2">মাস্টার্ড টপিকস লক্ষ্য (সংখ্যা)</label>
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest block mb-3 ml-1">মাস্টার্ড অধ্যায় লক্ষ্য</label>
                 <input 
                   type="number"
                   value={goalDraft.topicsMastered}
                   onChange={e => setGoalDraft({...goalDraft, topicsMastered: parseInt(e.target.value) || 0})}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-brand-primary/50 transition-all"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400 block mb-2">মাসিক পড়ার সময় (ঘন্টা)</label>
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest block mb-3 ml-1">মাসিক পড়ার সময় (ঘন্টা)</label>
                 <input 
                   type="number"
                   value={goalDraft.studyHours}
                   onChange={e => setGoalDraft({...goalDraft, studyHours: parseInt(e.target.value) || 0})}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-brand-primary/50 transition-all"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-400 block mb-2">টার্গেট Accuracy (%)</label>
+                <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest block mb-3 ml-1">টার্গেট নির্ভুলতা (%)</label>
                 <input 
                   type="number"
                   value={goalDraft.targetAccuracy}
                   onChange={e => setGoalDraft({...goalDraft, targetAccuracy: parseInt(e.target.value) || 0})}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-brand-primary/50 transition-all"
                 />
               </div>
-              
               <button 
                 onClick={handleSaveGoals}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-900/20 transition-all"
+                className="btn-primary w-full py-5 text-white rounded-[2rem] font-bold transition-all"
               >
-                সেভ করুন
+                আপডেট করুন
               </button>
             </div>
           </div>
